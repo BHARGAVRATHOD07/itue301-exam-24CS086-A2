@@ -3,16 +3,14 @@ import React from 'react';
 /**
  * Task 1 Component: TrainerCard
  * Accepts props: name, specialization, available
- * Dynamic availability display using object map
+ * Dynamic availability display using object map & luxury theme styling
  */
 const TrainerCard = ({ name, specialization, available }) => {
-  // Object map for text display as hinted in exam task
   const statusTextMap = {
     true: 'Available',
     false: 'Fully Booked'
   };
 
-  // Object map for dynamic CSS classes
   const statusClassMap = {
     true: 'available',
     false: 'fully-booked'
@@ -24,11 +22,13 @@ const TrainerCard = ({ name, specialization, available }) => {
     <div className="trainer-card">
       <div>
         <h3 className="trainer-name">{name}</h3>
-        <p className="trainer-spec">Specialization: {specialization}</p>
+        <p className="trainer-spec">
+          <span>🎯</span> {specialization}
+        </p>
       </div>
       <div>
         <span className={`status-badge ${statusClassMap[isAvailableKey]}`}>
-          {statusTextMap[isAvailableKey]}
+          {isAvailableKey ? '✨' : '🔒'} {statusTextMap[isAvailableKey]}
         </span>
       </div>
     </div>

@@ -5,15 +5,12 @@ import { useAuth } from '../context/AuthContext';
 const ClassesPage = () => {
   const { token } = useAuth();
 
-  // Task 4 Mandatory States: trainers, loading, and error
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Client-side search state for filtering by specialization
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Booking form states
   const [selectedTrainer, setSelectedTrainer] = useState('');
   const [className, setClassName] = useState('');
   const [bookingDate, setBookingDate] = useState('');
@@ -21,7 +18,6 @@ const ClassesPage = () => {
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [bookingStatusMsg, setBookingStatusMsg] = useState({ type: '', message: '' });
 
-  // Task 4 Requirement: Fetch trainers inside useEffect on component mount
   useEffect(() => {
     const fetchTrainers = async () => {
       setLoading(true);
@@ -47,13 +43,11 @@ const ClassesPage = () => {
     fetchTrainers();
   }, []);
 
-  // Task 4 Requirement: Derive filtered array by specialization at render time using .filter()
   const filteredTrainers = trainers.filter(trainer => 
     trainer.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
     trainer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle Booking Creation API POST /api/v1/bookings
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!selectedTrainer || !className || !bookingDate || !timeSlot) {
@@ -90,7 +84,6 @@ const ClassesPage = () => {
         message: `🎉 Booking Confirmed! Class "${data.data.className}" reserved for ${data.data.date} at ${data.data.timeSlot}.`
       });
 
-      // Clear form
       setClassName('');
       setBookingDate('');
       setTimeSlot('');
@@ -103,20 +96,25 @@ const ClassesPage = () => {
 
   return (
     <div>
-      <h1 className="page-title">FitZone Classes & Booking</h1>
-      <p className="page-subtitle">Reserve trainer-led classes and manage your fitness schedule</p>
+      <h1 className="page-title">
+        FitZone <span className="gold-text">Classes & Booking</span>
+      </h1>
+      <p className="page-subtitle">Reserve exclusive trainer-led sessions and elevate your fitness journey</p>
 
       {/* Class Booking Form */}
-      <div className="form-card" style={{ maxWidth: '600px', margin: '0 0 2.5rem 0' }}>
-        <h2>Reserve a Trainer Session</h2>
-        
+      <div className="form-card" style={{ maxWidth: '650px', margin: '0 0 3rem 0' }}>
+        <h2 style={{ marginBottom: '0.25rem' }}>Reserve a Trainer Session</h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+          Select an available trainer and lock in your session slot.
+        </p>
+
         {bookingStatusMsg.message && (
           <div className={`alert ${bookingStatusMsg.type === 'error' ? 'alert-error' : 'alert-info'}`}>
             {bookingStatusMsg.message}
           </div>
         )}
 
-        <form onSubmit={handleBookingSubmit} style={{ marginTop: '1rem' }}>
+        <form onSubmit={handleBookingSubmit}>
           <div className="form-group">
             <label>Select Trainer</label>
             <select 
@@ -125,7 +123,7 @@ const ClassesPage = () => {
               onChange={(e) => setSelectedTrainer(e.target.value)}
               required
             >
-              <option value="">-- Select Trainer from API --</option>
+              <option value="">-- Choose an Expert Trainer --</option>
               {trainers.map((t) => (
                 <option key={t._id} value={t._id}>
                   {t.name} ({t.specialization}) - {t.available ? 'Available' : 'Fully Booked'}
@@ -139,7 +137,7 @@ const ClassesPage = () => {
             <input 
               type="text"
               className="form-input"
-              placeholder="e.g. HIIT Strength & Conditioning"
+              placeholder="e.g. Morning HIIT Blast"
               value={className}
               onChange={(e) => setClassName(e.target.value)}
               required
@@ -175,51 +173,46 @@ const ClassesPage = () => {
             </div>
           </div>
 
-          {/* Meaningful state display */}
-          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>
-            <strong>Live State Summary:</strong> Trainer ID: <code>{selectedTrainer || 'None'}</code> | Slot: <code>{timeSlot || 'None'}</code>
+          <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.85rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', fontSize: '0.88rem' }}>
+            <strong>Selected State Summary:</strong> Trainer ID: <code style={{ color: 'var(--text-gold)' }}>{selectedTrainer || 'None'}</code> | Slot: <code style={{ color: 'var(--text-gold)' }}>{timeSlot || 'None'}</code>
           </div>
 
           <button type="submit" className="btn-primary" disabled={bookingSubmitting}>
-            {bookingSubmitting ? 'Creating Booking...' : 'Book Class Now'}
+            {bookingSubmitting ? 'Creating Booking...' : '👑 Confirm Class Booking'}
           </button>
         </form>
       </div>
 
-      {/* Trainer Directory Header & Task 4 Client-Side Search Filter */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
-        <h2>Available Trainers ({filteredTrainers.length})</h2>
+      {/* Directory & Client-Side Search Filter */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+        <h2>Our Certified Trainers ({filteredTrainers.length})</h2>
 
-        {/* Task 4 Requirement: Client-side search input filtering by specialization without re-fetching */}
         <input 
           type="text"
           className="form-input search-box"
-          placeholder="🔍 Filter by specialization (e.g. Yoga, HIIT)..."
+          placeholder="🔍 Filter specialization (e.g. Yoga, HIIT)..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '320px', margin: 0 }}
+          style={{ width: '340px', margin: 0 }}
         />
       </div>
 
-      {/* Task 4 Requirement 1: Loading State */}
       {loading && (
         <div className="alert alert-info">
-          ⏳ Loading trainer data from REST API...
+          ⌛ Fetching certified trainers from REST API...
         </div>
       )}
 
-      {/* Task 4 Requirement 2: Error State */}
       {error && (
         <div className="alert alert-error">
           ⚠️ Error loading trainers: {error}
         </div>
       )}
 
-      {/* Task 4 Requirement 3: Render Trainer Data via TrainerCard after successful request */}
       {!loading && !error && (
         <>
           {filteredTrainers.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>No trainers found matching specialization "{searchTerm}".</p>
+            <p style={{ color: 'var(--text-muted)' }}>No trainers match your filter "{searchTerm}".</p>
           ) : (
             <div className="trainer-grid">
               {filteredTrainers.map((t) => (
