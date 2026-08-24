@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Users, Dumbbell, CalendarCheck, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 const AdminPanel = () => {
   const { token } = useAuth();
@@ -12,13 +13,11 @@ const AdminPanel = () => {
     setLoading(true);
     setError(null);
     try {
-      // Fetch all bookings
       const bookingsRes = await fetch('http://localhost:5000/api/v1/bookings/all', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const bookingsData = await bookingsRes.json();
 
-      // Fetch all trainers
       const trainersRes = await fetch('http://localhost:5000/api/v1/trainers');
       const trainersData = await trainersRes.json();
 
@@ -29,7 +28,7 @@ const AdminPanel = () => {
         setTrainers(trainersData.data || []);
       }
     } catch (err) {
-      setError(err.message || 'Error fetching admin roster');
+      setError(err.message || 'Error fetching admin data');
     } finally {
       setLoading(false);
     }
@@ -41,7 +40,6 @@ const AdminPanel = () => {
     }
   }, [token]);
 
-  // Update status handler for Admin
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
       const response = await fetch(`http://localhost:5000/api/v1/bookings/${bookingId}/status`, {
@@ -54,7 +52,6 @@ const AdminPanel = () => {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        // Refresh roster
         fetchAdminData();
       } else {
         alert(data.error || 'Failed to update status');
@@ -65,72 +62,126 @@ const AdminPanel = () => {
   };
 
   return (
-    <div>
-      <h1 className="page-title">⚙️ FitZone Admin Panel</h1>
-      <p className="page-subtitle">Roster management and class booking administration (Lazy-Loaded Route)</p>
+    <div className="page-fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Admin Dashboard</h1>
+        <p className="page-subtitle">Manage trainers, classes, and member bookings.</p>
+      </div>
 
-      {/* Summary KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        <div className="form-card" style={{ margin: 0, padding: '1.25rem' }}>
-          <h4 style={{ color: 'var(--text-muted)' }}>Total Active Trainers</h4>
-          <h2 style={{ fontSize: '2rem', color: 'var(--accent)', marginTop: '0.25rem' }}>{trainers.length}</h2>
+      {/* 4 Professional SaaS Statistic Cards */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon-wrapper" style={{ background: '#EFF6FF', color: '#2563EB' }}>
+            <Users size={24} />
+          </div>
+          <div>
+            <div className="stat-value">{trainers.length}</div>
+            <div className="stat-label">Active Trainers</div>
+          </div>
         </div>
 
-        <div className="form-card" style={{ margin: 0, padding: '1.25rem' }}>
-          <h4 style={{ color: 'var(--text-muted)' }}>Total Booked Classes</h4>
-          <h2 style={{ fontSize: '2rem', color: 'var(--primary)', marginTop: '0.25rem' }}>{allBookings.length}</h2>
+        <div className="stat-card">
+          <div className="stat-icon-wrapper" style={{ background: '#FFF7ED', color: '#F97316' }}>
+            <Dumbbell size={24} />
+          </div>
+          <div>
+            <div className="stat-value">12</div>
+            <div className="stat-label">Total Classes</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon-wrapper" style={{ background: '#ECFDF5', color: '#059669' }}>
+            <CalendarCheck size={24} />
+          </div>
+          <div>
+            <div className="stat-value">{allBookings.length}</div>
+            <div className="stat-label">Total Bookings</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon-wrapper" style={{ background: '#F3E8FF', color: '#9333EA' }}>
+            <Clock size={24} />
+          </div>
+          <div>
+            <div className="stat-value">6</div>
+            <div className="stat-label">Today's Sessions</div>
+          </div>
         </div>
       </div>
 
-      {loading && <div className="alert alert-info">Loading admin roster from database...</div>}
-      {error && <div className="alert alert-error">Error: {error}</div>}
+      {loading && (
+        <div className="alert alert-info">
+          <Loader2 size={18} className="animate-spin" />
+          <span>Loading admin dashboard metrics and class roster...</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="alert alert-error">
+          <AlertCircle size={18} />
+          <span>Error loading admin panel: {error}</span>
+        </div>
+      )}
 
       {!loading && !error && (
         <div>
-          <h2>Gym Operations Class Roster ({allBookings.length} Entries)</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#0F172A' }}>Class Roster Management</h2>
+            <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Showing {allBookings.length} total entries</span>
+          </div>
 
           {allBookings.length === 0 ? (
-            <div className="alert alert-info" style={{ marginTop: '1rem' }}>
-              No class bookings found in the database system.
+            <div className="card" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+              No class bookings registered in the system yet.
             </div>
           ) : (
-            <div className="trainer-grid" style={{ marginTop: '1rem' }}>
-              {allBookings.map((b) => (
-                <div key={b._id} className="trainer-card">
-                  <div>
-                    <h3 className="trainer-name">{b.className}</h3>
-                    <p className="trainer-spec" style={{ color: 'var(--accent)' }}>
-                      👤 Member: {b.memberId?.name || 'Member'} ({b.memberId?.email || 'N/A'})
-                    </p>
-                    <p style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>
-                      🏋️ Trainer: {b.trainerId?.name || 'Trainer'}
-                    </p>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>📅 Date: {b.date}</p>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>⏰ Slot: {b.timeSlot}</p>
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <span className={`status-badge ${b.status === 'attended' ? 'available' : b.status === 'cancelled' ? 'fully-booked' : 'available'}`}>
-                      Status: {b.status.toUpperCase()}
-                    </span>
-
-                    {/* Admin Status Update Dropdown */}
-                    <div className="form-group" style={{ margin: 0 }}>
-                      <label style={{ fontSize: '0.75rem' }}>Change Status:</label>
-                      <select 
-                        className="form-select"
-                        style={{ padding: '0.35rem 0.5rem', fontSize: '0.85rem' }}
-                        value={b.status}
-                        onChange={(e) => handleStatusUpdate(b._id, e.target.value)}
-                      >
-                        <option value="booked">BOOKED</option>
-                        <option value="attended">ATTENDED</option>
-                        <option value="cancelled">CANCELLED</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="saas-table-container">
+              <table className="saas-table">
+                <thead>
+                  <tr>
+                    <th>Member</th>
+                    <th>Class Name</th>
+                    <th>Trainer</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allBookings.map((b) => (
+                    <tr key={b._id}>
+                      <td>
+                        <div style={{ fontWeight: 600, color: '#0F172A' }}>{b.memberId?.name || 'Member'}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{b.memberId?.email || 'N/A'}</div>
+                      </td>
+                      <td style={{ fontWeight: 500, color: '#1E293B' }}>{b.className}</td>
+                      <td>{b.trainerId?.name || 'Trainer'}</td>
+                      <td>{b.date}</td>
+                      <td>{b.timeSlot}</td>
+                      <td>
+                        <span className={`status-badge ${b.status}`}>
+                          {b.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>
+                        <select 
+                          className="form-select"
+                          style={{ padding: '0.35rem 0.6rem', fontSize: '0.82rem', width: 'auto' }}
+                          value={b.status}
+                          onChange={(e) => handleStatusUpdate(b._id, e.target.value)}
+                        >
+                          <option value="booked">Booked</option>
+                          <option value="attended">Attended</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

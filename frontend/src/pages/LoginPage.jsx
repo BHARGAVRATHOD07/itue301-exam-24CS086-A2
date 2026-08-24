@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Zap, AlertCircle, Loader2 } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('24cs086@charusat.edu.in');
@@ -31,7 +32,6 @@ const LoginPage = () => {
         throw new Error(data.error || 'Authentication failed');
       }
 
-      // Store member & JWT token in AuthContext
       login(data.member, data.token, 'Member');
       navigate('/classes');
     } catch (err) {
@@ -42,39 +42,58 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="form-card">
-      <h2 className="page-title" style={{ textAlign: 'center' }}>Member Login</h2>
-      <p className="page-subtitle" style={{ textAlign: 'center' }}>Access FitZone classes & schedule</p>
-      
-      {error && <div className="alert alert-error">{error}</div>}
+    <div className="page-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 160px)' }}>
+      <div className="form-card" style={{ width: '100%', maxWidth: '420px', padding: '2.5rem 2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--accent-orange-subtle)', color: 'var(--accent-orange)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
+            <Zap size={26} fill="#F97316" color="#F97316" />
+          </div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0F172A' }}>Member Login</h2>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Access FitZone classes & fitness schedule</p>
+        </div>
 
-      <form onSubmit={handleLoginSubmit}>
-        <div className="form-group">
-          <label>Email Address</label>
-          <input 
-            type="email" 
-            className="form-input" 
-            placeholder="member@fitzone.com" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)}
-            required 
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input 
-            type="password" 
-            className="form-input" 
-            placeholder="••••••••" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)}
-            required 
-          />
-        </div>
-        <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? 'Authenticating...' : 'Sign In & Access System'}
-        </button>
-      </form>
+        {error && (
+          <div className="alert alert-error">
+            <AlertCircle size={18} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleLoginSubmit}>
+          <div className="form-group">
+            <label>Email Address</label>
+            <input 
+              type="email" 
+              className="form-input" 
+              placeholder="member@fitzone.com" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)}
+              required 
+            />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input 
+              type="password" 
+              className="form-input" 
+              placeholder="••••••••" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)}
+              required 
+            />
+          </div>
+          <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                <span>Authenticating...</span>
+              </>
+            ) : (
+              <span>Sign In & Access System</span>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

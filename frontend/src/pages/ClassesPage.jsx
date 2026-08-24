@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TrainerCard from '../components/TrainerCard';
 import { useAuth } from '../context/AuthContext';
+import { Search, Calendar, Clock, Dumbbell, UserCheck, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 const ClassesPage = () => {
   const { token } = useAuth();
@@ -81,7 +82,7 @@ const ClassesPage = () => {
 
       setBookingStatusMsg({
         type: 'success',
-        message: `🎉 Booking Confirmed! Class "${data.data.className}" reserved for ${data.data.date} at ${data.data.timeSlot}.`
+        message: `Booking confirmed successfully! Reserved "${data.data.className}" on ${data.data.date} (${data.data.timeSlot}).`
       });
 
       setClassName('');
@@ -95,53 +96,61 @@ const ClassesPage = () => {
   };
 
   return (
-    <div>
-      <h1 className="page-title">
-        FitZone <span className="neon-text">Classes & Booking</span>
-      </h1>
-      <p className="page-subtitle">Reserve trainer-led sessions and elevate your fitness schedule</p>
+    <div className="page-fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Classes & Booking</h1>
+        <p className="page-subtitle">Reserve trainer-led sessions and build your fitness schedule.</p>
+      </div>
 
-      {/* Class Booking Form */}
-      <div className="form-card" style={{ maxWidth: '650px', margin: '0 0 3rem 0' }}>
-        <h2 style={{ marginBottom: '0.25rem' }}>Reserve a Trainer Session</h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
-          Select an available trainer and lock in your session slot.
-        </p>
+      {/* Compact Professional Booking Form */}
+      <div className="form-card" style={{ maxWidth: '720px', margin: '0 0 2.5rem 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--accent-orange-subtle)', color: 'var(--accent-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Calendar size={20} />
+          </div>
+          <div>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#0F172A' }}>Book a Training Session</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Select your trainer, date, and preferred time slot.</p>
+          </div>
+        </div>
 
         {bookingStatusMsg.message && (
-          <div className={`alert ${bookingStatusMsg.type === 'error' ? 'alert-error' : 'alert-info'}`}>
-            {bookingStatusMsg.message}
+          <div className={`alert ${bookingStatusMsg.type === 'error' ? 'alert-error' : 'alert-success'}`}>
+            {bookingStatusMsg.type === 'error' ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
+            <span>{bookingStatusMsg.message}</span>
           </div>
         )}
 
         <form onSubmit={handleBookingSubmit}>
-          <div className="form-group">
-            <label>Select Trainer</label>
-            <select 
-              className="form-select"
-              value={selectedTrainer}
-              onChange={(e) => setSelectedTrainer(e.target.value)}
-              required
-            >
-              <option value="">-- Choose an Expert Trainer --</option>
-              {trainers.map((t) => (
-                <option key={t._id} value={t._id}>
-                  {t.name} ({t.specialization}) - {t.available ? 'Available' : 'Fully Booked'}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label>Trainer</label>
+              <select 
+                className="form-select"
+                value={selectedTrainer}
+                onChange={(e) => setSelectedTrainer(e.target.value)}
+                required
+              >
+                <option value="">Select a trainer</option>
+                {trainers.map((t) => (
+                  <option key={t._id} value={t._id}>
+                    {t.name} ({t.specialization})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="form-group">
-            <label>Class Name</label>
-            <input 
-              type="text"
-              className="form-input"
-              placeholder="e.g. Morning HIIT Blast"
-              value={className}
-              onChange={(e) => setClassName(e.target.value)}
-              required
-            />
+            <div className="form-group">
+              <label>Class Name</label>
+              <input 
+                type="text"
+                className="form-input"
+                placeholder="e.g. Morning HIIT Cardio"
+                value={className}
+                onChange={(e) => setClassName(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -164,7 +173,7 @@ const ClassesPage = () => {
                 onChange={(e) => setTimeSlot(e.target.value)}
                 required
               >
-                <option value="">-- Choose Slot --</option>
+                <option value="">Select time slot</option>
                 <option value="07:00 AM - 08:00 AM">07:00 AM - 08:00 AM</option>
                 <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
                 <option value="05:00 PM - 06:00 PM">05:00 PM - 06:00 PM</option>
@@ -173,46 +182,62 @@ const ClassesPage = () => {
             </div>
           </div>
 
-          <div style={{ background: 'rgba(0, 242, 254, 0.08)', border: '1px solid rgba(0, 242, 254, 0.25)', padding: '0.85rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', fontSize: '0.88rem' }}>
-            <strong>Live State Summary:</strong> Trainer ID: <code style={{ color: 'var(--neon-cyan)' }}>{selectedTrainer || 'None'}</code> | Slot: <code style={{ color: 'var(--neon-cyan)' }}>{timeSlot || 'None'}</code>
+          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', fontSize: '0.85rem', color: '#475569' }}>
+            <strong>Selected:</strong> Trainer ID: <code style={{ color: 'var(--brand-blue)' }}>{selectedTrainer || 'None'}</code> | Time Slot: <code style={{ color: 'var(--brand-blue)' }}>{timeSlot || 'None'}</code>
           </div>
 
-          <button type="submit" className="btn-primary" disabled={bookingSubmitting}>
-            {bookingSubmitting ? 'Creating Booking...' : '⚡ Confirm Class Booking'}
+          <button type="submit" className="btn-primary btn-cta" style={{ width: '100%' }} disabled={bookingSubmitting}>
+            {bookingSubmitting ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                <span>Confirming...</span>
+              </>
+            ) : (
+              <span>Confirm Booking</span>
+            )}
           </button>
         </form>
       </div>
 
       {/* Directory & Client-Side Search Filter */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-        <h2>Available Trainers ({filteredTrainers.length})</h2>
+        <div>
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 600, color: '#0F172A' }}>Available Trainers</h2>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Showing {filteredTrainers.length} certified fitness specialists</p>
+        </div>
 
-        <input 
-          type="text"
-          className="form-input search-box"
-          placeholder="🔍 Filter specialization (e.g. Yoga, HIIT)..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '340px', margin: 0 }}
-        />
+        <div className="search-box-wrapper">
+          <Search size={16} className="search-box-icon" />
+          <input 
+            type="text"
+            className="form-input search-box-input"
+            placeholder="Search by specialization or name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       {loading && (
         <div className="alert alert-info">
-          ⌛ Fetching certified trainers from REST API...
+          <Loader2 size={18} />
+          <span>Loading available trainers...</span>
         </div>
       )}
 
       {error && (
         <div className="alert alert-error">
-          ⚠️ Error loading trainers: {error}
+          <AlertCircle size={18} />
+          <span>Error loading trainers: {error}</span>
         </div>
       )}
 
       {!loading && !error && (
         <>
           {filteredTrainers.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>No trainers match your filter "{searchTerm}".</p>
+            <div className="card" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+              No trainers found matching "{searchTerm}".
+            </div>
           ) : (
             <div className="trainer-grid">
               {filteredTrainers.map((t) => (
