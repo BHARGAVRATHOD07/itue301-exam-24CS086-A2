@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ClassBooking = require('../models/ClassBooking');
-const authGuard = (require('../middleware/authGuard'));
+const authGuard = require('../middleware/authGuard');
 
 // Apply authGuard middleware to all booking routes
 router.use(authGuard);
@@ -19,7 +19,6 @@ router.post('/', async (req, res, next) => {
     const { trainerId, className, date, timeSlot } = req.body;
     const memberId = req.member.id;
 
-    // Basic validation check
     if (!trainerId || !className || !date || !timeSlot) {
       const err = new Error('Please provide trainerId, className, date, and timeSlot');
       err.statusCode = 400;
@@ -46,12 +45,10 @@ router.post('/', async (req, res, next) => {
         data: populatedBooking
       });
     } catch (dbErr) {
-      // If db validation error occurs, pass to next(dbErr) for error handler
       if (dbErr.name === 'ValidationError' || dbErr.name === 'CastError') {
         return next(dbErr);
       }
       
-      // Fallback in-memory creation if DB not connected
       const mockBooking = {
         _id: 'bk_' + Date.now(),
         memberId: { _id: memberId, name: req.member.name || 'Member', email: req.member.email },
@@ -100,6 +97,36 @@ router.get('/my', async (req, res, next) => {
         success: true,
         count: userBookings.length,
         data: userBookings
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   GET /api/v1/bookings/all
+ * @desc    Return ALL bookings across all members for Admin Roster
+ * @access  Protected
+ */
+router.get('/all', async (req, res, next) => {
+  try {
+    try {
+      const bookings = await ClassBooking.find()
+        .populate('memberId', 'name email')
+        .populate('trainerId', 'name specialization')
+        .sort({ createdAt: -1 });
+
+      return res.status(200).json({
+        success: true,
+        count: bookings.length,
+        data: bookings
+      });
+    } catch (dbErr) {
+      return res.status(200).json({
+        success: true,
+        count: memoryBookings.length,
+        data: memoryBookings
       });
     }
   } catch (error) {
