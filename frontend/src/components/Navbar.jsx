@@ -14,7 +14,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <NavLink to="/" className="brand">
-        <span className="brand-icon">👑</span> <span className="gold-text">FitZone</span>
+        <span className="brand-icon">⚡</span> <span className="neon-text">FITZONE</span>
       </NavLink>
 
       <ul className="nav-links">
@@ -28,7 +28,7 @@ const Navbar = () => {
           <>
             <li>
               <NavLink to="/classes" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-                Classes & Reserve
+                Classes
               </NavLink>
             </li>
             <li>
@@ -42,8 +42,8 @@ const Navbar = () => {
               </NavLink>
             </li>
             <li style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginLeft: '1rem' }}>
-              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-gold)' }}>
-                ✨ {member?.name || 'Member'}
+              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--neon-cyan)', fontFamily: 'Rajdhani, sans-serif' }}>
+                👤 {member?.name || 'Member'}
               </span>
               <button onClick={handleLogout} className="btn-logout">
                 Logout

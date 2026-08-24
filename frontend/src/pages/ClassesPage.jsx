@@ -97,9 +97,9 @@ const ClassesPage = () => {
   return (
     <div>
       <h1 className="page-title">
-        FitZone <span className="gold-text">Classes & Booking</span>
+        FitZone <span className="neon-text">Classes & Booking</span>
       </h1>
-      <p className="page-subtitle">Reserve exclusive trainer-led sessions and elevate your fitness journey</p>
+      <p className="page-subtitle">Reserve trainer-led sessions and elevate your fitness schedule</p>
 
       {/* Class Booking Form */}
       <div className="form-card" style={{ maxWidth: '650px', margin: '0 0 3rem 0' }}>
@@ -173,19 +173,19 @@ const ClassesPage = () => {
             </div>
           </div>
 
-          <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.85rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', fontSize: '0.88rem' }}>
-            <strong>Selected State Summary:</strong> Trainer ID: <code style={{ color: 'var(--text-gold)' }}>{selectedTrainer || 'None'}</code> | Slot: <code style={{ color: 'var(--text-gold)' }}>{timeSlot || 'None'}</code>
+          <div style={{ background: 'rgba(0, 242, 254, 0.08)', border: '1px solid rgba(0, 242, 254, 0.25)', padding: '0.85rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', fontSize: '0.88rem' }}>
+            <strong>Live State Summary:</strong> Trainer ID: <code style={{ color: 'var(--neon-cyan)' }}>{selectedTrainer || 'None'}</code> | Slot: <code style={{ color: 'var(--neon-cyan)' }}>{timeSlot || 'None'}</code>
           </div>
 
           <button type="submit" className="btn-primary" disabled={bookingSubmitting}>
-            {bookingSubmitting ? 'Creating Booking...' : '👑 Confirm Class Booking'}
+            {bookingSubmitting ? 'Creating Booking...' : '⚡ Confirm Class Booking'}
           </button>
         </form>
       </div>
 
       {/* Directory & Client-Side Search Filter */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-        <h2>Our Certified Trainers ({filteredTrainers.length})</h2>
+        <h2>Available Trainers ({filteredTrainers.length})</h2>
 
         <input 
           type="text"
